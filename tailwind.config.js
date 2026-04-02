@@ -42,6 +42,15 @@ export default {
       borderRadius: {
         lg: "var(--radius)",
       },
+      keyframes: {
+        pulseScale: {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.3)" },
+        },
+      },
+      animation: {
+        pulseScale: "pulseScale 1.2s ease-in-out infinite",
+      },
     },
   },
   plugins: [],
