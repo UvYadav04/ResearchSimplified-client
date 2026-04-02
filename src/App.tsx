@@ -68,11 +68,26 @@ function App() {
               outputRef.current = { ...outputRef.current, output: outputRef.current.output + content }
           }
         }
+        else if (parsed?.type === "image") {
+          const content = parsed["content"]
+          if (content) {
+            setOutput((prev) => {
+              if (!prev) return prev;
+              const updated = {
+                ...prev,
+                output: (prev.output || "") + content
+              };
+              return updated;
+            });
+            if (outputRef.current)
+              outputRef.current = { ...outputRef.current, output: outputRef.current.output + content }
+          }
+        }
         else if (parsed.type === "originalContent") {
           const newOutput = {
-            originalContent: parsed["content"],
+            originalContent: parsed["type"] === "text" ? parsed["content"] : "Image",
             output: "",
-            type: "text"
+            type: parsed["type"]
           } as paperOutputInterface
           setOutput(newOutput)
           outputRef.current = newOutput
