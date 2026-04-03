@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useDocsContext } from '../../../context/Docs'
 import PdfViewer from './components/PdfViewer'
 import router from '../../../routes/routes'
-import { toast } from 'sonner'
 import OutputSection from './components/MessageSection'
+import { toast } from 'sonner'
 
 
 export interface paperOutputInterface {
@@ -11,7 +11,8 @@ export interface paperOutputInterface {
     output: string,
     type: "text" | 'image',
     page: number,
-    chunk: number
+    chunk: number,
+    id: string
 }
 
 export interface processorInterface {
@@ -40,11 +41,11 @@ function Simplifier() {
         const formData = new FormData()
         formData.append("file", currentFile)
         setProcessor((prev) => ({ ...prev, gettingOutput: true }))
-
-        // return
-        const response = await fetch("http://localhost:8000/documents/upload-paper",
+        console.log(import.meta.env.VITE_SERVER_URI)
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URI}/documents/upload-paper`,
             {
                 method: "POST",
+                credentials: 'include',
                 body: formData
             }
         )
@@ -70,7 +71,6 @@ function Simplifier() {
                 if (!part)
                     continue
                 const parsed = JSON.parse(part)
-                // console.log(parsed)
                 if (parsed?.type === "text") {
                     const content = parsed["content"]
                     if (content) {
@@ -105,17 +105,24 @@ function Simplifier() {
                 }
                 else if (parsed.type === "originalContent") {
                     console.log(parsed['content'])
+                    //to handle when a new arrives, we push preivous one to store
+                    const finalOutput = outputRef.current;
+                    if (finalOutput) {
+                        allOutputsRef.current.push(finalOutput);
+                    }
                     const newOutput = {
                         originalContent: parsed["content-type"] === "text" ? parsed["content"] : "Image",
                         output: "",
                         type: parsed["type"],
                         page: parsed["page"],
-                        chunk: parsed["block_idx"]
+                        chunk: parsed["block_idx"],
+                        id: parsed["id"]
                     } as paperOutputInterface
                     setOutput(newOutput)
                     outputRef.current = newOutput
                 }
                 else if (parsed.type === "end") {
+                    //when the stream ends, we push the last output to store
                     const finalOutput = outputRef.current;
                     if (finalOutput) {
                         allOutputsRef.current.push(finalOutput);
@@ -124,7 +131,7 @@ function Simplifier() {
                     outputRef.current = undefined;
                     setProcessor((prev) => ({ ...prev, streaming: false }))
                     requestCalled.current = false
-                    // console.log(allOutputsRef.current)
+                    console.log(allOutputsRef.current)
                 }
             }
         }
@@ -142,10 +149,6 @@ function Simplifier() {
             document.getElementById(`${selectedPage}`)?.scrollIntoView({ behavior: "smooth" })
         }
     }, [selectedPage])
-
-
-    // console.log(outputRef.current)
-
 
 
     return (

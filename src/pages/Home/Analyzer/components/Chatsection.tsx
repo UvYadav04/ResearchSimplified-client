@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Message } from "./Message";
+import { Lock } from "lucide-react";
+import useUserInfo from "../../../../hooks/useUserInfo";
 
 interface ChatProps {
     selectedHalf: number;
@@ -9,6 +11,8 @@ interface ChatProps {
 function Chatsection({ setSelectedHalf, selectedHalf }: ChatProps) {
     const chatBoxRef = useRef<HTMLDivElement | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
+    const { userInfo } = useUserInfo()
+
 
     const [messages, setMessages] = useState<
         { role: "user" | "assistant"; content: string }[]
@@ -17,7 +21,10 @@ function Chatsection({ setSelectedHalf, selectedHalf }: ChatProps) {
     const [input, setInput] = useState("");
 
     useEffect(() => {
-        const handleSelection = () => setSelectedHalf(1);
+        const handleSelection = () => {
+            // if (userInfo)
+            setSelectedHalf(1);
+        }
         const el = chatBoxRef.current;
 
         el?.addEventListener("mousedown", handleSelection);
@@ -52,8 +59,23 @@ function Chatsection({ setSelectedHalf, selectedHalf }: ChatProps) {
         <div
             ref={chatBoxRef}
             className={`h-full ${!selectedHalf ? "w-1/3 cursor-pointer" : "w-2/3 cursor-default"
-                } flex flex-col transition-all duration-300 `}
+                } flex flex-col transition-all duration-300 relative`}
         >
+            {!userInfo && <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-md bg-black/40">
+                <div className="flex flex-col items-center gap-4 px-6 py-5 rounded-2xl bg-white/10 border border-white/20 shadow-xl backdrop-blur-lg">
+
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20">
+                        <Lock className="w-6 h-6 text-emerald-400" />
+                    </div>
+
+                    <p className="text-sm text-gray-200 text-center">
+                        You need to login to start chatting
+                    </p>
+
+
+
+                </div>
+            </div>}
             <div
                 className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-3"
                 style={{ scrollbarWidth: "none" }}

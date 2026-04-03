@@ -1,7 +1,49 @@
 import React from 'react'
 import router from '../../../routes/routes'
+import { GoogleLogin } from '@react-oauth/google'
+import { toast } from 'sonner'
+import { jwtDecode } from 'jwt-decode'
+import { useGetUserInfoQuery, useLoginMutation, useLogoutMutation } from '../../../services/userSlice'
+import { Loader, LogOut } from 'lucide-react'
+import { useDocsContext } from '../../../context/Docs'
+import useUserInfo from '../../../hooks/useUserInfo'
+
+export interface userInfo {
+    name: string,
+    email: string,
+    chatCounts: number,
+    documentUploads: number,
+    imageGenerations: number
+}
 
 function Navbar() {
+    const [login, { isLoading: loggingIn }] = useLoginMutation()
+    const [logout, { isLoading: loggingOut }] = useLogoutMutation()
+    const { setCurrentFile } = useDocsContext()
+    const { userInfo, gettingUserInfo } = useUserInfo()
+
+    console.log(userInfo)
+    const handleLogout = async () => {
+        try {
+            const { success, message } = await logout().unwrap()
+            if (!success)
+                throw new Error(message)
+            setCurrentFile(null)
+        } catch (error: any) {
+            toast.info(error?.message || error?.data?.message || "Failed to Log out at the moment")
+        }
+    }
+    const handleLogin = async (name: string, email: string) => {
+        try {
+            const { success, message } = await login({ name, email }).unwrap()
+            if (!success)
+                throw new Error(message)
+            setCurrentFile(null)
+        } catch (error: any) {
+            toast.info(error?.message || error?.data?.message || "Failed to Log in at the moment")
+        }
+    }
+
     return (
         <div className="w-full px-10 py-2 h-fit flex justify-between items-center bg-slate-100 backdrop-blur-md border-b">
             <h1 className="text-xl font-semibold text-green-600 cursor-pointer" onClick={() => router.navigate("/", { replace: true })}>
@@ -30,9 +72,20 @@ function Navbar() {
                     </a>
                 </div>
 
-                <button className="px-4 py-2 border rounded-lg text-sm">
-                    Sign in
-                </button>
+                {gettingUserInfo || loggingIn || loggingOut ? <Loader className='animate-spin' /> : (userInfo ? <button className="px-4 py-2 border rounded-lg text-sm flex gap-2 place-items-center place-content-between group">
+                    <span>{userInfo.name}</span>
+                    <LogOut onClick={() => handleLogout()} className='group-hover:block hidden transition-all duration-300 ease-out' size={20} color='orangeRed' />
+                </button> :
+                    <GoogleLogin
+                        onSuccess={async (credentialResponse) => {
+                            const decoded: any = jwtDecode(credentialResponse.credential || "")
+                            handleLogin(decoded.name, decoded.email)
+                        }}
+                        onError={() => {
+                            toast.error("cant log in at the moment")
+                        }}
+                    />
+                )}
                 {/* <button className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm">
                         Get Started
                     </button> */}

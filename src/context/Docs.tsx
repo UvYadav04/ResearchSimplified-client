@@ -2,14 +2,17 @@ import React, { createContext, useContext, useState, type Dispatch, type SetStat
 
 interface DocsContextInterface {
     currentFile: File | null,
-    setCurrentFile: Dispatch<SetStateAction<File | null>>
+    setCurrentFile: Dispatch<SetStateAction<File | null>>,
+    selectedOutput: string | null,
+    setSelectedOutput: Dispatch<SetStateAction<string | null>>,
 }
 const DocsContext = createContext<DocsContextInterface | null>(null)
 
 function DocsContextProvider({ children }: { children: React.ReactNode }) {
     const [currentFile, setCurrentFile] = useState<File | null>(null)
+    const [selectedOutput, setSelectedOutput] = useState<string | null>(null)
     return (
-        <DocsContext.Provider value={{ currentFile, setCurrentFile,  }}>
+        <DocsContext.Provider value={{ currentFile, setCurrentFile, selectedOutput, setSelectedOutput }}>
             {children}
         </DocsContext.Provider>
     )

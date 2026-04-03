@@ -1,16 +1,35 @@
 import { useRef, useState } from "react";
 import type { paperOutputInterface } from "../Simplifier";
 import ReactMarkdown from 'react-markdown'
+import { useDocsContext } from "../../../../context/Docs";
+import { MinusCircle, MinusCircleIcon, PlusCircleIcon, } from "lucide-react";
+import useUserInfo from "../../../../hooks/useUserInfo";
 
 export const OutputBox = ({ item }: { item: paperOutputInterface }) => {
     const [expanded, setExpanded] = useState(false);
+    const { setSelectedOutput, selectedOutput } = useDocsContext()
+    const { userInfo } = useUserInfo()
     const boxRef = useRef<HTMLDivElement | null>(null)
     const id = `${item.chunk === 1 ? item.page + 1 : `${item.page} + ${item.chunk}`}`
+    const actualId = item?.id || null
+    const selected = selectedOutput === actualId
     return (
         <div ref={boxRef} id={id} className="flex w-full flex-col gap-2  rounded-sm p-4 bg-white shadow-sm hover:shadow-md transition-all ">
             <div className=" text-slate-500">
-                <div className="flex justify-end items-center mb-1">
-                    {/* <span className="font-medium text-slate-400">Original</span> */}
+                <div className="flex justify-end items-center mb-2 gap-2">
+                    <button
+                        className="text-slate-400 text-xs flex p cursor-pointer"
+                        disabled={!userInfo}
+                        title={userInfo ? (selected ? "Add chunk to chat" : "Remove chunk from chat") : "Login to use this feature."}
+                        onClick={() => {
+                            if (selected)
+                                setSelectedOutput(null)
+                            else
+                                setSelectedOutput(actualId)
+                        }}
+                    >
+                        {selected ? <MinusCircleIcon size={15} /> : <PlusCircleIcon size={15} />}
+                    </button>
                     <button
                         className="text-slate-400 text-xs"
                         onClick={() => setExpanded(!expanded)}
