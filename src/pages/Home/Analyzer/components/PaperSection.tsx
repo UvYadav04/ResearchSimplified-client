@@ -34,7 +34,7 @@ function PaperSection({ setSelectedHalf, selectedHalf, bottomRef, processor, out
     }, [])
 
     return (
-        <div ref={outputBoxRef} className={`messages h-full ${selectedHalf ? "w-1/3 cursor-pointer text-[9px]  leading-[13px]" : "w-2/3 cursor-default text-[13px] leading-relax "} flex flex-col gap-3 py-2 place-content-start place-items-center  overflow-y-scroll px-2 border border-slate-200 bg-slate-100 transition-all duration-500`} style={{ scrollbarWidth: "none" }}>
+        <div ref={outputBoxRef} className={`messages h-full ${selectedHalf ? "w-1/3 lg:flex-1 hidden cursor-pointer text-[9px]  leading-[13px]" : "lg:w-2/3 w-full cursor-default text-[13px] leading-relax "} flex flex-col gap-3 py-2 place-content-start place-items-center  overflow-y-scroll px-2 border border-slate-200 bg-slate-100 transition-all duration-500`} style={{ scrollbarWidth: "none" }}>
             {allOutputsRef.current.map((item, index) => (
                 <OutputBox key={index} item={item} />
             ))}
@@ -50,7 +50,7 @@ function PaperSection({ setSelectedHalf, selectedHalf, bottomRef, processor, out
                         </div>
 
                         <p className="text-sm">
-                            Please log in to access all pages.
+                            Please log in to simplify all pages.
                         </p>
 
                     </div>

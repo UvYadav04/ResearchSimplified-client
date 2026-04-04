@@ -29,111 +29,127 @@ function Simplifier() {
     const outputRef = useRef<paperOutputInterface | undefined>(undefined)
     const { currentFile } = useDocsContext()
     const bottomRef = useRef<HTMLDivElement | null>(null)
-    const [selectedPage, setSelectedPage] = useState(1)
+    const [selectedPage, setSelectedPage] = useState(-1)
     const [processor, setProcessor] = useState<processorInterface>({ generatingImage: false, waitingMessage: false, gettingOutput: false, streaming: false })
     const requestCalled = useRef<boolean>(false)
 
     const handleFileUpload = async () => {
-        if (!currentFile || processor.gettingOutput || processor.streaming || requestCalled.current)
-            return;
-        requestCalled.current = true
-        setOutput(undefined)
-        const formData = new FormData()
-        formData.append("file", currentFile)
-        setProcessor((prev) => ({ ...prev, gettingOutput: true }))
-        console.log(import.meta.env.VITE_SERVER_URI)
-        const response = await fetch(`${import.meta.env.VITE_SERVER_URI}/documents/upload-paper`,
-            {
-                method: "POST",
-                credentials: 'include',
-                body: formData
+        try {
+            if (!currentFile || processor.gettingOutput || processor.streaming || requestCalled.current)
+                return;
+            requestCalled.current = true
+            setOutput(undefined)
+            const formData = new FormData()
+            formData.append("file", currentFile)
+            setProcessor((prev) => ({ ...prev, gettingOutput: true }))
+            console.log(import.meta.env.VITE_SERVER_URI)
+            const response = await fetch(`${import.meta.env.VITE_SERVER_URI}/documents/upload-paper`,
+                {
+                    method: "POST",
+                    credentials: 'include',
+                    body: formData
+                }
+            )
+            if (!response.ok) {
+                throw new Error(`Upload failed: ${response.status}`);
             }
-        )
-        if (!response.ok) {
-            throw new Error(`Upload failed: ${response.status}`);
-        }
 
-        if (!response.body) {
-            throw new Error("Streaming not supported");
-        }
+            if (!response.body) {
+                throw new Error("Streaming not supported");
+            }
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder("utf-8");
+            setProcessor((prev) => ({ ...prev, gettingOutput: false, streaming: true }))
+            while (true) {
+                const { done, value } = await reader.read();
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder("utf-8");
-        setProcessor((prev) => ({ ...prev, gettingOutput: false, streaming: true }))
-        while (true) {
-            const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = decoder.decode(value, { stream: true });
+                const parts = chunk.split("<END>")
 
-            if (done) break;
-            const chunk = decoder.decode(value, { stream: true });
-            const parts = chunk.split("<END>")
+                for (const part of parts) {
+                    if (!part)
+                        continue
+                    const parsed = JSON.parse(part)
+                    if (parsed?.type === "error" || parsed?.type === "end") {
+                        if (parsed?.type === "error")
+                            toast.info(parsed?.message || "failed to stream")
+                        //when the stream ends or some error is there, we push the last output to store
+                        const finalOutput = outputRef.current;
+                        if (finalOutput) {
+                            allOutputsRef.current.push(finalOutput);
+                        }
+                        setOutput(undefined);
+                        outputRef.current = undefined;
+                        setProcessor((prev) => ({ ...prev, streaming: false }))
+                        requestCalled.current = false
+                        console.log(allOutputsRef.current)
+                    }
+                    else if (parsed?.type === "sameContent") {
+                        console.log(parsed)
+                        // allOutputsRef.current.pop();
+                        // setOutput(undefined)
+                        // outputRef.current = undefined
+                    }
+                    else if (parsed?.type === "text") {
+                        const content = parsed["content"]
+                        if (content) {
+                            setOutput((prev) => {
+                                if (!prev) return prev;
+                                const updated = {
+                                    ...prev,
+                                    output: (prev.output || "") + content
+                                };
+                                return updated;
+                            });
+                            if (outputRef.current)
+                                outputRef.current = { ...outputRef.current, output: outputRef.current.output + content }
+                        }
+                        bottomRef.current?.scrollIntoView({ behavior: "smooth" })
+                    }
+                    else if (parsed?.type === "image") {
+                        const content = parsed["content"]
+                        if (content) {
+                            setOutput((prev) => {
+                                if (!prev) return prev;
+                                const updated = {
+                                    ...prev,
+                                    output: (prev.output || "") + content
+                                };
+                                return updated;
+                            });
+                            if (outputRef.current)
+                                outputRef.current = { ...outputRef.current, output: outputRef.current.output + content }
+                        }
+                        bottomRef.current?.scrollIntoView()
+                    }
+                    else if (parsed.type === "originalContent") {
+                        console.log(parsed['content'])
+                        //to handle when a new arrives, we push preivous one to store
+                        const finalOutput = outputRef.current;
+                        if (finalOutput) {
+                            allOutputsRef.current.push(finalOutput);
+                        }
+                        const newOutput = {
+                            originalContent: parsed["content-type"] === "text" ? parsed["content"] : "Image",
+                            output: "",
+                            type: parsed["type"],
+                            page: parsed["page"],
+                            chunk: parsed["block_idx"],
+                            id: parsed["id"]
+                        } as paperOutputInterface
+                        setOutput(newOutput)
+                        outputRef.current = newOutput
+                    }
 
-            for (const part of parts) {
-                if (!part)
-                    continue
-                const parsed = JSON.parse(part)
-                if (parsed?.type === "text") {
-                    const content = parsed["content"]
-                    if (content) {
-                        setOutput((prev) => {
-                            if (!prev) return prev;
-                            const updated = {
-                                ...prev,
-                                output: (prev.output || "") + content
-                            };
-                            return updated;
-                        });
-                        if (outputRef.current)
-                            outputRef.current = { ...outputRef.current, output: outputRef.current.output + content }
-                    }
-                    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-                }
-                else if (parsed?.type === "image") {
-                    const content = parsed["content"]
-                    if (content) {
-                        setOutput((prev) => {
-                            if (!prev) return prev;
-                            const updated = {
-                                ...prev,
-                                output: (prev.output || "") + content
-                            };
-                            return updated;
-                        });
-                        if (outputRef.current)
-                            outputRef.current = { ...outputRef.current, output: outputRef.current.output + content }
-                    }
-                    bottomRef.current?.scrollIntoView()
-                }
-                else if (parsed.type === "originalContent") {
-                    console.log(parsed['content'])
-                    //to handle when a new arrives, we push preivous one to store
-                    const finalOutput = outputRef.current;
-                    if (finalOutput) {
-                        allOutputsRef.current.push(finalOutput);
-                    }
-                    const newOutput = {
-                        originalContent: parsed["content-type"] === "text" ? parsed["content"] : "Image",
-                        output: "",
-                        type: parsed["type"],
-                        page: parsed["page"],
-                        chunk: parsed["block_idx"],
-                        id: parsed["id"]
-                    } as paperOutputInterface
-                    setOutput(newOutput)
-                    outputRef.current = newOutput
-                }
-                else if (parsed.type === "end") {
-                    //when the stream ends, we push the last output to store
-                    const finalOutput = outputRef.current;
-                    if (finalOutput) {
-                        allOutputsRef.current.push(finalOutput);
-                    }
-                    setOutput(undefined);
-                    outputRef.current = undefined;
-                    setProcessor((prev) => ({ ...prev, streaming: false }))
-                    requestCalled.current = false
-                    console.log(allOutputsRef.current)
                 }
             }
+        } catch (error: any) {
+            console.log(error)
+            toast.info(error?.message || "failed to respond")
+        }
+        finally {
+            setProcessor((prev)=>({...prev,gettingOutput:false,streaming:false}))
         }
     }
 

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { useDocsContext } from "../../context/Docs";
-import Navbar from "./components/Navbar";
 import router from "../../routes/routes";
 
 

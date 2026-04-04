@@ -2,33 +2,39 @@ import React, { useEffect, useRef, useState } from "react";
 import { Message } from "./Message";
 import { Lock } from "lucide-react";
 import useUserInfo from "../../../../hooks/useUserInfo";
+import { useDocsContext } from "../../../../context/Docs";
 
 interface ChatProps {
     selectedHalf: number;
     setSelectedHalf: React.Dispatch<React.SetStateAction<number>>;
 }
 
+interface messageInterface {
+    role: "user" | "assistant",
+    content: string,
+    timestamp: string
+    image?: string,
+}
+
 function Chatsection({ setSelectedHalf, selectedHalf }: ChatProps) {
     const chatBoxRef = useRef<HTMLDivElement | null>(null);
     const bottomRef = useRef<HTMLDivElement | null>(null);
     const { userInfo } = useUserInfo()
+    const { selectedOutput } = useDocsContext()
+    const [thinking, setThinking] = useState(false)
 
-
-    const [messages, setMessages] = useState<
-        { role: "user" | "assistant"; content: string }[]
-    >([]);
+    const [messages, setMessages] = useState<messageInterface[]>([]);
+    const [currentMessage, setCurrentMessage] = useState<string | undefined>(undefined)
 
     const [input, setInput] = useState("");
 
     useEffect(() => {
         const handleSelection = () => {
-            // if (userInfo)
-            setSelectedHalf(1);
+            if (userInfo)
+                setSelectedHalf(1);
         }
         const el = chatBoxRef.current;
-
         el?.addEventListener("mousedown", handleSelection);
-
         return () => {
             el?.removeEventListener("mousedown", handleSelection);
         };
@@ -38,27 +44,77 @@ function Chatsection({ setSelectedHalf, selectedHalf }: ChatProps) {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    const handleQuery = async () => {
+        try {
+            if (!input.trim()) return;
+            setThinking(true)
+            setMessages((prev) => {
+                return [
+                    ...messages,
+                    {
+                        role: "user",
+                        content: input,
+                        timestamp: Date.now().toString(),
+                    }
+                ]
+            })
+            setInput("");
+            const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/chat/query`, {
+                method: "POST",
+                credentials: 'include',
+                body: JSON.stringify({ query: input, chunkId: selectedOutput })
+            })
 
-        const newMessage = { role: "user" as const, content: input };
+            const body = await response.json()
 
-        setMessages((prev) => [...prev, newMessage]);
+            if (!response.ok)
+                throw new Error(body?.message || "failed to resolved query, please try again")
 
-        setTimeout(() => {
-            setMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: "Thinking..." },
-            ]);
-        }, 500);
+            if (!response.body) {
+                throw new Error("failed to resolved query, please try again");
+            }
 
-        setInput("");
+            const reader = response.body.getReader()
+            const decoder = new TextDecoder("utf-8")
+            setThinking(false)
+
+            while (true) {
+                const { done, value } = await reader.read()
+                if (done) {
+                    setCurrentMessage((prev) => {
+                        if (prev)
+                            setMessages((prevMessages) => {
+                                return [
+                                    ...prevMessages,
+                                    {
+                                        role: "assistant",
+                                        content: prev,
+                                        timestamp: Date.now().toString()
+                                    }
+                                ]
+                            })
+                        return ""
+                    })
+                    break
+                }
+                const chunk = decoder.decode(value, { stream: true })
+                const parts = chunk.split("<END>")
+
+                for (let part of parts) {
+                    setCurrentMessage((prev) => {
+                        return (prev || "") + part
+                    })
+                }
+            }
+        } catch (error) {
+
+        }
     };
 
     return (
         <div
             ref={chatBoxRef}
-            className={`h-full ${!selectedHalf ? "w-1/3 cursor-pointer" : "w-2/3 cursor-default"
+            className={`h-full ${!selectedHalf ? "lg:w-1/3 w-0 cursor-pointer" : "lg:w-2/3 w-full cursor-default"
                 } flex flex-col transition-all duration-300 relative`}
         >
             {!userInfo && <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-md bg-black/40">
@@ -91,13 +147,13 @@ function Chatsection({ setSelectedHalf, selectedHalf }: ChatProps) {
                 <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                    onKeyDown={(e) => e.key === "Enter" && handleQuery()}
                     placeholder="Ask something..."
                     className="flex-1 px-3 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-blue-400"
                 />
 
                 <button
-                    onClick={handleSend}
+                    onClick={handleQuery}
                     className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
                 >
                     Send
