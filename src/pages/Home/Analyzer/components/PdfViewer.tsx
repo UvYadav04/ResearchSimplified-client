@@ -1,32 +1,32 @@
 import React, { useState, type Dispatch, type SetStateAction } from "react";
 import { useDocsContext } from "../../../../context/Docs";
 import { Document, Page, pdfjs } from "react-pdf";
-import { Info, Loader } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from "../../components/ui/sheet"
-import { Button } from "../../components/ui/button"
+import { Info, Loader, Menu } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from ".././../../../components/ui/sheet"
+import { Button } from ".././../../../components/ui/button"
+
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 
 
 function PdfViewer({ setSelectedPage }: { setSelectedPage: Dispatch<SetStateAction<number>> }) {
-    const { currentFile } = useDocsContext();
+    const { currentFile, sidebarOpen, setSidebarOpen } = useDocsContext();
     const [numPages, setNumPages] = useState(0);
-    const[loading,setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     function onLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
         setLoading(false)
     }
 
-    if (!currentFile) {
-        return <div>No PDF selected</div>;
-    }
-    const pdfContent =  (
+    if (!currentFile)
+        null
+    const pdfContent = (
         <div className="pdfViewer w-fit   box-border lg:flex-1   min-h-0">
-            {loading && <div className="animate-pulse size-10 rounded-full bg-sky-500 mx-auto mt-5" />}
-            {!loading && <div className="h-full p-2 flex-shrink-0 border-2 border-slate-300 flex place-content-center flex-col gap-4 place-items-center w-fit overflow-y-auto bg-gray-100">
+            {loading && <div className="animate-pulse size-10 rounded-full mx-auto mt-5" />}
+            {!loading && <div className="h-full p-2  flex-shrink-0 border-2 border-slate-300 flex place-content-center flex-col gap-4 place-items-center w-fit overflow-y-auto bg-gray-100 ">
                 <p className="w-full text-start  flex place-items-center gap-1 text-xs"><Info size={15} />Click the page to get related simplified content.</p>
-                <div className="flex w-fit p-2 pt-0  place-content-center place-items-start py-3 h-full overflow-y-auto " style={{ scrollbarWidth: "none" }}>
+                <div className="flex w-fit pt-0  place-content-center place-items-start py-3 h-full overflow-y-auto " style={{ scrollbarWidth: "none" }}>
 
                     <Document className="flex flex-col gap-4 h-full" file={currentFile} onLoadStart={() => setLoading(true)} onLoadSuccess={onLoadSuccess}>
 
@@ -53,25 +53,20 @@ function PdfViewer({ setSelectedPage }: { setSelectedPage: Dispatch<SetStateActi
     return (
         <>
             {/* Mobile */}
-            <div className="lg:hidden flex items-center p-2 fixed top-2 left-2 ">
-                <Sheet>
-                    <SheetTrigger asChild>
-                        <Button variant="outline" size="icon">
-                            <Menu size={20} />
-                        </Button>
-                    </SheetTrigger>
+            <div className="xl:hidden flex items-center p-2 fixed top-[10px] left-1 ">
+                <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
 
                     <SheetContent
                         side="left"
-                        className="w-72 p-0 bg-background/95 backdrop-blur border-r border-border"
+                        className="w-72 p-0 bg-background/95 backdrop-blur border-r border-border px-3 pt-12"
                     >
-                        <SidebarContent />
+                        {pdfContent}
                     </SheetContent>
                 </Sheet>
             </div>
 
-            <div className=" hidden lg:flex h-full w-72 ">
-                <SidebarContent />
+            <div className=" hidden xl:flex h-full   bg-blue-500 min-w-fit ">
+                {pdfContent}
             </div>
         </>
     )

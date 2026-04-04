@@ -4,7 +4,7 @@ import { GoogleLogin } from '@react-oauth/google'
 import { toast } from 'sonner'
 import { jwtDecode } from 'jwt-decode'
 import { useGetUserInfoQuery, useLoginMutation, useLogoutMutation } from '../../../services/userSlice'
-import { Loader, LogOut } from 'lucide-react'
+import { Loader, LogOut, Menu } from 'lucide-react'
 import { useDocsContext } from '../../../context/Docs'
 import useUserInfo from '../../../hooks/useUserInfo'
 
@@ -19,7 +19,7 @@ export interface userInfo {
 function Navbar() {
     const [login, { isLoading: loggingIn }] = useLoginMutation()
     const [logout, { isLoading: loggingOut }] = useLogoutMutation()
-    const { setCurrentFile } = useDocsContext()
+    const { setCurrentFile, setSidebarOpen } = useDocsContext()
     const { userInfo, gettingUserInfo } = useUserInfo()
 
     console.log(userInfo)
@@ -45,9 +45,12 @@ function Navbar() {
     }
 
     return (
-        <div className="w-full px-10 py-2 h-fit flex justify-between items-center bg-slate-100 backdrop-blur-md border-b">
-            <h1 className="text-xl font-semibold text-green-600 cursor-pointer" onClick={() => router.navigate("/", { replace: true })}>
-                ResearchSimplified
+        <div className="w-full pe-10 ps-4 py-2 h-fit flex justify-between items-center bg-slate-100 backdrop-blur-md border-b">
+            <h1 className="text-xl font-semibold text-green-600 cursor-pointer flex place-items-center  gap-2" onClick={() => router.navigate("/", { replace: true })}>
+                <Menu onClick={() => setSidebarOpen(true)} className='md:hidden block mt-[3px]' size={30} />
+                <span>
+                    ResearchSimplified
+                </span>
             </h1>
 
 

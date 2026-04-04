@@ -111,10 +111,13 @@ function Chatsection({ setSelectedHalf, selectedHalf }: ChatProps) {
         }
     };
 
+    const chatSelected = Boolean(selectedHalf)
     return (
         <div
             ref={chatBoxRef}
-            className={`h-full ${!selectedHalf ? "lg:w-1/3 w-0 cursor-pointer" : "lg:w-2/3 w-full cursor-default"
+            className={`h-full ${chatSelected
+                    ? "lg:w-2/3 md:w-1/2 w-full lg:cursor-pointer cursor-default"
+                : "lg:w-1/3 md:w-1/2 w-0 cursor-default md:flex hidden"
                 } flex flex-col transition-all duration-300 relative`}
         >
             {!userInfo && <div className="absolute inset-0 z-10 flex items-center justify-center backdrop-blur-md bg-black/40">

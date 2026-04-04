@@ -73,7 +73,7 @@ function Simplifier() {
                     const parsed = JSON.parse(part)
                     if (parsed?.type === "error" || parsed?.type === "end") {
                         if (parsed?.type === "error")
-                            toast.info(parsed?.message || "failed to stream")
+                            toast.info(parsed?.message || parsed?.error || "failed to stream")
                         //when the stream ends or some error is there, we push the last output to store
                         const finalOutput = outputRef.current;
                         if (finalOutput) {
@@ -84,12 +84,6 @@ function Simplifier() {
                         setProcessor((prev) => ({ ...prev, streaming: false }))
                         requestCalled.current = false
                         console.log(allOutputsRef.current)
-                    }
-                    else if (parsed?.type === "sameContent") {
-                        console.log(parsed)
-                        // allOutputsRef.current.pop();
-                        // setOutput(undefined)
-                        // outputRef.current = undefined
                     }
                     else if (parsed?.type === "text") {
                         const content = parsed["content"]

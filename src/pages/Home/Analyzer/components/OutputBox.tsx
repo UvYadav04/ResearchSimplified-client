@@ -13,10 +13,11 @@ export const OutputBox = ({ item }: { item: paperOutputInterface }) => {
     const id = `${item.chunk === 1 ? item.page + 1 : `${item.page} + ${item.chunk}`}`
     const actualId = item?.id || null
     const selected = selectedOutput === actualId
+    console.log(item)
     return (
-        <div ref={boxRef} id={id} className="flex w-full flex-col gap-2  rounded-sm p-4 bg-white shadow-sm hover:shadow-md transition-all ">
-            <div className=" text-slate-500">
-                <div className="flex justify-end items-center mb-2 gap-2">
+        <div ref={boxRef} id={id} className="flex w-full flex-col gap-2 h-fit  rounded-sm p-4 bg-white shadow-sm hover:shadow-md transition-all ">
+            <div className=" text-slate-500 max-h-full">
+                <div className="flex justify-end items-center mb-2 gap-2 max-h-full">
                     <button
                         className="text-slate-400 text-xs flex p cursor-pointer"
                         disabled={!userInfo}
@@ -38,7 +39,7 @@ export const OutputBox = ({ item }: { item: paperOutputInterface }) => {
                     </button>
                 </div>
 
-                <p className={`${expanded ? "" : "line-clamp-3"} leading-relaxed`}>
+                <p className={`${expanded ? "" : "line-clamp-3"}`}>
                     {item.originalContent}
                 </p>
             </div>

@@ -5,14 +5,17 @@ interface DocsContextInterface {
     setCurrentFile: Dispatch<SetStateAction<File | null>>,
     selectedOutput: string | null,
     setSelectedOutput: Dispatch<SetStateAction<string | null>>,
+    sidebarOpen: boolean,
+    setSidebarOpen: Dispatch<SetStateAction<boolean>>,
 }
 const DocsContext = createContext<DocsContextInterface | null>(null)
 
 function DocsContextProvider({ children }: { children: React.ReactNode }) {
     const [currentFile, setCurrentFile] = useState<File | null>(null)
     const [selectedOutput, setSelectedOutput] = useState<string | null>(null)
+    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false)
     return (
-        <DocsContext.Provider value={{ currentFile, setCurrentFile, selectedOutput, setSelectedOutput }}>
+        <DocsContext.Provider value={{ currentFile, setCurrentFile, selectedOutput, setSelectedOutput,setSidebarOpen,sidebarOpen }}>
             {children}
         </DocsContext.Provider>
     )
