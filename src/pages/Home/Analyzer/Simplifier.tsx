@@ -42,7 +42,7 @@ function Simplifier() {
             const formData = new FormData()
             formData.append("file", currentFile)
             setProcessor((prev) => ({ ...prev, gettingOutput: true }))
-            console.log(import.meta.env.VITE_SERVER_URI)
+            // console.log(import.meta.env.VITE_SERVER_URI)
             const response = await fetch(`${import.meta.env.VITE_SERVER_URI}/documents/upload-paper`,
                 {
                     method: "POST",
@@ -83,7 +83,7 @@ function Simplifier() {
                         outputRef.current = undefined;
                         setProcessor((prev) => ({ ...prev, streaming: false }))
                         requestCalled.current = false
-                        console.log(allOutputsRef.current)
+                        // console.log(allOutputsRef.current)
                     }
                     else if (parsed?.type === "text") {
                         const content = parsed["content"]
@@ -118,7 +118,7 @@ function Simplifier() {
                         bottomRef.current?.scrollIntoView()
                     }
                     else if (parsed.type === "originalContent") {
-                        console.log(parsed['content'])
+                        // console.log(parsed['content'])
                         //to handle when a new arrives, we push preivous one to store
                         const finalOutput = outputRef.current;
                         if (finalOutput) {

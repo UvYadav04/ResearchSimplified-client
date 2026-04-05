@@ -13,7 +13,6 @@ export const OutputBox = ({ item }: { item: paperOutputInterface }) => {
     const id = `${item.chunk === 1 ? item.page + 1 : `${item.page} + ${item.chunk}`}`
     const actualId = item?.id || null
     const selected = selectedOutput === actualId
-    console.log(item)
     return (
         <div ref={boxRef} id={id} className="flex w-full flex-col gap-2 h-fit  rounded-sm p-4 bg-white shadow-sm hover:shadow-md transition-all ">
             <div className=" text-slate-500 max-h-full">
@@ -21,7 +20,7 @@ export const OutputBox = ({ item }: { item: paperOutputInterface }) => {
                     <button
                         className="text-slate-400 text-xs flex p cursor-pointer"
                         disabled={!userInfo}
-                        title={userInfo ? (selected ? "Add chunk to chat" : "Remove chunk from chat") : "Login to use this feature."}
+                        title={userInfo ? (!selected ? "Add chunk to chat" : "Remove chunk from chat") : "Login to use this feature."}
                         onClick={() => {
                             if (selected)
                                 setSelectedOutput(null)

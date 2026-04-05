@@ -29,7 +29,7 @@ function OutputSection({ processor, allOutputsRef, output, bottomRef }: MessageP
             </div>}
             {!processor.gettingOutput && <div className="w-full md:h-full h-[calc(100%-20px)] flex-1 flex flex-row place-content-start place-items-center ">
                 <PaperSection processor={processor} selectedHalf={selectedHalf} setSelectedHalf={setSelectedHalf} allOutputsRef={allOutputsRef} output={output} bottomRef={bottomRef} />
-                <Chatsection selectedHalf={selectedHalf} setSelectedHalf={setSelectedHalf} />
+                <Chatsection processor={processor} selectedHalf={selectedHalf} setSelectedHalf={setSelectedHalf} />
             </div>}
         </div>
     )

@@ -57,7 +57,7 @@ function Navbar() {
             <div className="flex gap-3 place-content-between place-items-center">
                 <div className="links flex place-content-evenly place-items-center gap-5">
                     <a
-                        href="https://github.com/your-username/your-repo"
+                        href="https://github.com/UvYadav04/ResearchSimplified-client"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-black transition"
@@ -66,7 +66,7 @@ function Navbar() {
                     </a>
 
                     <a
-                        href="https://linkedin.com/in/your-profile"
+                        href="https://www.linkedin.com/in/dinesh-yadav-264113265"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 hover:text-black transition"
