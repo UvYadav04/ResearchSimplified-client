@@ -5,6 +5,7 @@ import useUserInfo from "../../../../hooks/useUserInfo";
 import { useDocsContext } from "../../../../context/Docs";
 import type { processorInterface } from "../Simplifier";
 import { toast } from "sonner";
+import clsx from "clsx";
 
 interface ChatProps {
     selectedHalf: number;
@@ -29,11 +30,11 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
     const [messages, setMessages] = useState<messageInterface[]>([]);
     const [currentMessage, setCurrentMessage] = useState<messageInterface | undefined>(undefined)
     const currentMessageRef = useRef<messageInterface | undefined>(undefined)
+    const chatDisabled = processor.gettingOutput || processor.streaming || processor.waitingMessage || thinking
 
     const [input, setInput] = useState("");
 
     const updateMessages = (message: messageInterface | undefined) => {
-        console.log(message)
         setMessages((prevMessages) => {
             if (message)
                 return [
@@ -62,8 +63,7 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
 
     const handleQuery = async () => {
         try {
-            console.log("in inpu t query")
-            if (!input.trim()) return;
+            if (!input.trim() || chatDisabled) return;
             setThinking(true)
             setMessages((prev) => {
                 return [
@@ -91,7 +91,6 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
 
             // const body = await response.json()
 
-            // console.log(body)
 
             if (!response.ok)
                 throw new Error("failed to resolved query, please try again")
@@ -100,7 +99,6 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
                 throw new Error("failed to resolved query, please try again");
             }
 
-            // console.log(response)
 
             const reader = response.body.getReader()
             const decoder = new TextDecoder("utf-8")
@@ -109,7 +107,6 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
             while (true) {
                 const { done, value } = await reader.read()
                 if (done) {
-                    console.log("Done")
                     updateMessages(currentMessageRef.current)
                     setCurrentMessage(undefined)
                     break
@@ -120,7 +117,6 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
                 for (let part of parts) {
                     if (!part)
                         continue;
-                    console.log(part)
                     const parsed = JSON.parse(part)
                     if (parsed?.type === "error") {
                         toast.info(parsed?.message || "failed to continue chat...")
@@ -137,12 +133,10 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
                 }
             }
         } catch (error) {
-            console.log(error)
         }
     };
 
-    // console.log(messages)
-    // console.log(processor)
+
 
     const chatSelected = Boolean(selectedHalf)
     return (
@@ -175,7 +169,8 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
                 {messages.map((msg, idx) => (
                     <Message key={idx} role={msg.role} content={msg.content} />
                 ))}
-
+                {currentMessage?.content && <Message key={-1} role={currentMessage.role} content={currentMessage.content} />
+}
 
                 <div ref={bottomRef} />
             </div>
@@ -190,9 +185,9 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
                 />
 
                 <button
-                    disabled={processor.gettingOutput || processor.streaming || processor.waitingMessage || thinking}
+                    disabled={chatDisabled}
                     onClick={handleQuery}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+                    className={clsx("px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600", chatDisabled && "bg-blue-300")}
                 >
                     Send
                 </button>

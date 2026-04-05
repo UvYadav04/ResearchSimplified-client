@@ -163,8 +163,8 @@ function Simplifier() {
 
     return (
         <div className="text-sm  flex-1  flex flex-row place-content-between h-full    max-w-full  min-h-0">
-            <PdfViewer setSelectedPage={setSelectedPage} />
-            <OutputSection processor={processor} output={output} allOutputsRef={allOutputsRef} bottomRef={bottomRef} />
+            <PdfViewer setSelectedPage={setSelectedPage} selectedPage={selectedPage} />
+            <OutputSection selectedPage={selectedPage} processor={processor} output={output} allOutputsRef={allOutputsRef} bottomRef={bottomRef} />
 
         </div>
     )

@@ -4,17 +4,20 @@ import ReactMarkdown from 'react-markdown'
 import { useDocsContext } from "../../../../context/Docs";
 import { MinusCircle, MinusCircleIcon, PlusCircleIcon, } from "lucide-react";
 import useUserInfo from "../../../../hooks/useUserInfo";
+import { cn } from "@/lib/utils";
 
-export const OutputBox = ({ item }: { item: paperOutputInterface }) => {
+export const OutputBox = ({ item, selectedPage }: { item: paperOutputInterface, selectedPage: number }) => {
     const [expanded, setExpanded] = useState(false);
     const { setSelectedOutput, selectedOutput } = useDocsContext()
     const { userInfo } = useUserInfo()
     const boxRef = useRef<HTMLDivElement | null>(null)
+    const page = item.page
     const id = `${item.chunk === 1 ? item.page + 1 : `${item.page} + ${item.chunk}`}`
     const actualId = item?.id || null
     const selected = selectedOutput === actualId
+    const samePage = page+1 === selectedPage
     return (
-        <div ref={boxRef} id={id} className="flex w-full flex-col gap-2 h-fit  rounded-sm p-4 bg-white shadow-sm hover:shadow-md transition-all ">
+        <div ref={boxRef} id={id} className={cn("flex w-full flex-col gap-2 h-fit  rounded-sm p-4 bg-white shadow-sm hover:shadow-md transition-all ",samePage && "bg-emerald-100/50")}>
             <div className=" text-slate-500 max-h-full">
                 <div className="flex justify-end items-center mb-2 gap-2 max-h-full">
                     <button

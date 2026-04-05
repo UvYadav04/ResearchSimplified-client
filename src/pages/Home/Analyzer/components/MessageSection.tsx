@@ -13,10 +13,11 @@ interface MessageProps {
     allOutputsRef: RefObject<paperOutputInterface[]>,
     processor: processorInterface,
     output: paperOutputInterface | undefined,
-    bottomRef: RefObject<HTMLDivElement | null>
+    bottomRef: RefObject<HTMLDivElement | null>,
+    selectedPage: number
 }
 
-function OutputSection({ processor, allOutputsRef, output, bottomRef }: MessageProps) {
+function OutputSection({ processor, allOutputsRef, output, bottomRef, selectedPage }: MessageProps) {
     const [selectedHalf, setSelectedHalf] = useState(0)
     return (
         <div className="Output flex flex-col gap-4  flex-1/2 min-h-0 p-3  w-full h-full">
@@ -28,7 +29,7 @@ function OutputSection({ processor, allOutputsRef, output, bottomRef }: MessageP
                 <Button onClick={() => setSelectedHalf(1)} className={`w-24 ${selectedHalf === 0 ? "bg-emerald-600" : "bg-emerald-800"}`}>Chat</Button>
             </div>}
             {!processor.gettingOutput && <div className="w-full md:h-full h-[calc(100%-20px)] flex-1 flex flex-row place-content-start place-items-center ">
-                <PaperSection processor={processor} selectedHalf={selectedHalf} setSelectedHalf={setSelectedHalf} allOutputsRef={allOutputsRef} output={output} bottomRef={bottomRef} />
+                <PaperSection selectedPage={selectedPage} processor={processor} selectedHalf={selectedHalf} setSelectedHalf={setSelectedHalf} allOutputsRef={allOutputsRef} output={output} bottomRef={bottomRef} />
                 <Chatsection processor={processor} selectedHalf={selectedHalf} setSelectedHalf={setSelectedHalf} />
             </div>}
         </div>

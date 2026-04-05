@@ -4,12 +4,13 @@ import { Document, Page, pdfjs } from "react-pdf";
 import { Info, Loader, Menu } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from ".././../../../components/ui/sheet"
 import { Button } from ".././../../../components/ui/button"
+import { cn } from "@/lib/utils";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 
 
-function PdfViewer({ setSelectedPage }: { setSelectedPage: Dispatch<SetStateAction<number>> }) {
+function PdfViewer({ setSelectedPage,selectedPage }: { setSelectedPage: Dispatch<SetStateAction<number>>,selectedPage:number }) {
     const { currentFile, sidebarOpen, setSidebarOpen } = useDocsContext();
     const [numPages, setNumPages] = useState(0);
     const [loading, setLoading] = useState(false)
@@ -37,7 +38,7 @@ function PdfViewer({ setSelectedPage }: { setSelectedPage: Dispatch<SetStateActi
                                 width={300}
                                 renderTextLayer={false}
                                 renderAnnotationLayer={false}
-                                className="transition-all w-72 duration-300 cursor-pointer border-2 border-slate-400"
+                                className={cn("transition-all w-72 duration-300 cursor-pointer border-2 border-slate-400",selectedPage===index+1 && "border-4")}
                                 onClick={() => setSelectedPage(index + 1)}
 
                             />
