@@ -169,8 +169,9 @@ function Chatsection({ setSelectedHalf, selectedHalf, processor }: ChatProps) {
                 {messages.map((msg, idx) => (
                     <Message key={idx} role={msg.role} content={msg.content} />
                 ))}
-                {currentMessage?.content && <Message key={-1} role={currentMessage.role} content={currentMessage.content} />
-}
+                {currentMessage?.content && <Message key={-1} role={currentMessage.role} content={currentMessage.content} />}
+                {thinking && <Message key={-1} role={"assistant"} content={"thinking"} />}
+
 
                 <div ref={bottomRef} />
             </div>

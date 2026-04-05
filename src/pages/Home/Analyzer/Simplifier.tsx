@@ -31,13 +31,13 @@ function Simplifier() {
     const bottomRef = useRef<HTMLDivElement | null>(null)
     const [selectedPage, setSelectedPage] = useState(-1)
     const [processor, setProcessor] = useState<processorInterface>({ generatingImage: false, waitingMessage: false, gettingOutput: false, streaming: false })
-    const requestCalled = useRef<boolean>(false)
+    const callInProgress = useRef<boolean>(false)
 
     const handleFileUpload = async () => {
         try {
-            if (!currentFile || processor.gettingOutput || processor.streaming || requestCalled.current)
+            if (!currentFile || processor.gettingOutput || processor.streaming || callInProgress.current)
                 return;
-            requestCalled.current = true
+            callInProgress.current = true
             setOutput(undefined)
             const formData = new FormData()
             formData.append("file", currentFile)
@@ -82,7 +82,7 @@ function Simplifier() {
                         setOutput(undefined);
                         outputRef.current = undefined;
                         setProcessor((prev) => ({ ...prev, streaming: false }))
-                        requestCalled.current = false
+                        callInProgress.current = false
                         // console.log(allOutputsRef.current)
                     }
                     else if (parsed?.type === "text") {
@@ -143,7 +143,8 @@ function Simplifier() {
             toast.info(error?.message || "failed to respond")
         }
         finally {
-            setProcessor((prev)=>({...prev,gettingOutput:false,streaming:false}))
+            setProcessor((prev) => ({ ...prev, gettingOutput: false, streaming: false }))
+            callInProgress.current = false
         }
     }
 
@@ -164,6 +165,9 @@ function Simplifier() {
     return (
         <div className="text-sm  flex-1  flex flex-row place-content-between h-full    max-w-full  min-h-0">
             <PdfViewer setSelectedPage={setSelectedPage} selectedPage={selectedPage} />
+            {callInProgress.current && <div className='w-full flex-1  h-full place-content-center  place-items-center'>
+                            <div className="size-10 rounded-full bg-blue-500 animate-ping" />
+                        </div>}
             <OutputSection selectedPage={selectedPage} processor={processor} output={output} allOutputsRef={allOutputsRef} bottomRef={bottomRef} />
 
         </div>
