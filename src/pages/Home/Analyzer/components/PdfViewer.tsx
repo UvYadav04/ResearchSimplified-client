@@ -1,9 +1,8 @@
-import React, { useState, type Dispatch, type SetStateAction } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { useDocsContext } from "../../../../context/Docs";
 import { Document, Page, pdfjs } from "react-pdf";
-import { Info, Loader, Menu } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger } from ".././../../../components/ui/sheet"
-import { Button } from ".././../../../components/ui/button"
+import { Info, } from "lucide-react";
+import { Sheet, SheetContent } from ".././../../../components/ui/sheet"
 import { cn } from "@/lib/utils";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;

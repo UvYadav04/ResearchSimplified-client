@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { LogInIcon } from "lucide-react";
 import type { userInfo } from "../pages/Home/components/Navbar";
 
 export interface BaseResponse {

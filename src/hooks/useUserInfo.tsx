@@ -1,4 +1,3 @@
-import React from 'react'
 import { useGetUserInfoQuery } from '../services/userSlice'
 
 function useUserInfo() {

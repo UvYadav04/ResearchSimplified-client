@@ -1,11 +1,6 @@
-import React, { useEffect, useRef, useState, type RefObject } from 'react'
-import { OutputBox } from './OutputBox'
+import {useState, type RefObject } from 'react'
 import type { paperOutputInterface, processorInterface } from '../Simplifier'
 import Chatsection from './Chatsection'
-import { toast } from 'sonner'
-import { useGetUserInfoQuery } from '../../../../services/userSlice'
-import { Lock } from 'lucide-react'
-import useUserInfo from '../../../../hooks/useUserInfo'
 import PaperSection from './PaperSection'
 import { Button } from '@/components/ui/button'
 

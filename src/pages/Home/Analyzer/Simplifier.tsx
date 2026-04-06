@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import  { useEffect, useRef, useState } from 'react'
 import { useDocsContext } from '../../../context/Docs'
 import PdfViewer from './components/PdfViewer'
 import router from '../../../routes/routes'
