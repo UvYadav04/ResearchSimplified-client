@@ -21,7 +21,6 @@ function Navbar() {
     const { setCurrentFile, setSidebarOpen } = useDocsContext()
     const { userInfo, gettingUserInfo } = useUserInfo()
 
-    console.log(userInfo)
     const handleLogout = async () => {
         try {
             const { success, message } = await logout().unwrap()
@@ -45,9 +44,12 @@ function Navbar() {
 
     return (
         <div className="w-full pe-10 ps-4 py-2 h-fit flex justify-between items-center bg-slate-100 backdrop-blur-md border-b">
-            <h1 className="text-xl font-semibold text-green-600 cursor-pointer flex place-items-center  gap-2" onClick={() => router.navigate("/", { replace: true })}>
+            <h1 className="text-xl font-semibold text-green-600 cursor-pointer flex place-items-center  gap-2" >
                 <Menu onClick={() => setSidebarOpen(true)} className='md:hidden block mt-[3px]' size={30} />
-                <span>
+                <span onClick={() => {
+                    setCurrentFile(null)
+                    router.navigate("/", { replace: true })
+                }}>
                     ResearchSimplified
                 </span>
             </h1>

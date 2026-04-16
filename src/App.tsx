@@ -18,7 +18,7 @@ function App() {
           <RouterProvider router={router} />
         </DocsContextProvider>
       </Provider>
-   </GoogleOAuthProvider>
+    </GoogleOAuthProvider>
   )
 }
 
