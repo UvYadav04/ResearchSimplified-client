@@ -147,7 +147,7 @@ function PaperSection({
         <button
           disabled={exporting}
           onClick={() => exportToPDF()}
-          className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition shadow-md hover:shadow-lg active:scale-[0.98]"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 m px-4 py-2 text-sm font-medium text-white bg-emerald-600 rounded-lg hover:bg-emerald-700 transition shadow-md hover:shadow-lg active:scale-[0.98]"
         >
           Export
         </button>
